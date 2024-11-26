@@ -1,0 +1,43 @@
+cmake_minimum_required(VERSION 3.10)
+project(piod VERSION 0.1)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
+if (CMAKE_BUILD_TYPE MATCHES "(Debug)|(Release)")
+    message("Current build type: ${CMAKE_BUILD_TYPE}")
+else()
+    message("Set default build type to Debug.")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+set(PROJECT_SOURCES
+    src/main.cpp
+    src/P_watchdog.cpp
+    src/thermalControl.cpp
+    src/monitorUtils.cpp
+    src/iodUtils.cpp
+    src/gpuUtils.cpp
+)
+
+set(SOURCES
+    ${PROJECT_SOURCES}
+)
+
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+
+target_include_directories(${PROJECT_NAME}
+    PRIVATE lib
+)
+target_link_directories(${PROJECT_NAME} PRIVATE lib)
+target_link_libraries(${PROJECT_NAME}
+    nvml
+)
+
+set(current_target ${PROJECT_NAME})
+include(${CMAKE_CURRENT_SOURCE_DIR}/CompilerFlags.cmake)
+
