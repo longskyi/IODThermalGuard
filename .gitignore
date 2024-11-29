@@ -37,5 +37,4 @@
 nvml.lib
 nvml.dll
 nvml.h
-hwisenssm2.h
 /.vscode/

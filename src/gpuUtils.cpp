@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <thread>
 #include <functional>
-#include <gpuUtils.h>
+#include "gpuUtils.h"
 
 
 GPUController::GPUController(nvmlDevice_t _gpu_device,struct GPU_performance_settings gpu_setting,void (*_logger) (std::string logger_str,LogLevel level))
@@ -26,7 +26,7 @@ unsigned int GPUController::GPUlgc(unsigned int targetmax,int src,int behave) //
     //printf("tring to set to %dMhz from src %d\n",targetmax,src);
     if(targetmax<GPU_minCLK || targetmax>GPU_maxCLK)
     {
-        std::cerr<<"detected error target GPU_frequnecy from src"<<src<<std::endl;
+        logger(std::format("detected error target GPU_frequnecy from src {}",src),LogLevel::WARN);
         targetmax=(GPU_minCLK+GPU_maxCLK)/2;
     }
     nvmlReturn_t nvmlflag3=NVML_SUCCESS;
@@ -42,6 +42,7 @@ unsigned int GPUController::GPUlgc(unsigned int targetmax,int src,int behave) //
 
     if(nvmlflag3!=NVML_SUCCESS)
     {
+        logger(std::format("Set GPU max graphic clock limit error src:{}",src),LogLevel::ERRO);
         std::cerr<<"set GPU LockedCLocks error "<<nvmlErrorString(nvmlflag3)<<std::endl;
         // system(PROC_NVIDIASMI_STR);
     }

@@ -7,8 +7,6 @@
 #include <mutex>
 #include <atomic>
 #include "iodUtils.h"
-#include "monitorUtils.cpp"
-#include "logUtils.cpp"
 #include "P_watchdog.h"
 #include <format>
 #include <string>
@@ -40,7 +38,7 @@ int HWINFOdataFetcher::init() // 0 for success , 1 for failed
     //HANDLE hHWIMutex = CreateMutexW(NULL, FALSE, W_hwimutex);
     if (!hHWiNFOMemory)
     {
-        if(!logger)
+        if(logger)
             logger(std::string("unable to open HWINFO shared memory"),LogLevel::ERRO);
         return 1;
     }
@@ -49,13 +47,13 @@ int HWINFOdataFetcher::init() // 0 for success , 1 for failed
     // TODO: process signature, version, revision and poll time
     if(pHWiNFOMemory->dwSignature == 0x44414544 ) //=="DEAD"
     {
-        if(!logger)
+        if(logger)
             logger(std::string("IODfetcher init failed, hwi share memory inactive"),LogLevel::ERRO);
         return 1;
     }
     if(pHWiNFOMemory->dwSignature != 0x53695748 ) //!="HWiS"
     {
-        if(!logger)
+        if(logger)
         {
             logger(std::string("hwi share memory unknow content"),LogLevel::ERRO);
             logger(std::format("hwi signature: %u",pHWiNFOMemory->dwSignature),LogLevel::ERRO);
@@ -75,15 +73,15 @@ int HWINFOdataFetcher::init() // 0 for success , 1 for failed
         {
             findiod = true;
             dwIODReading=dwReading;
-            if(!logger)
+            if(logger)
                 logger(std::string(std::format("found HWINFO {} sensors",sensor_name)),LogLevel::INFO);   
             break;
         }
     }
     if(!findiod)
     {
-        if(!logger)
-            logger(std::string(std::format("unable to find  sensor",sensor_name)),LogLevel::ERRO);
+        if(logger)
+            logger(std::string(std::format("unable to find {} sensor",sensor_name)),LogLevel::ERRO);
         return 1;   
     }
     get_data_temp_run = true;
@@ -98,7 +96,7 @@ void HWINFOdataFetcher::worker_thread()
     if(hHWiNFOMemory)    pHWiNFOMemory = (PHWiNFO_SENSORS_SHARED_MEM2) MapViewOfFile( hHWiNFOMemory, FILE_MAP_READ, 0, 0, 0 );
     while(get_data_temp_run && hHWiNFOMemory)
     {
-        P_watchdog::refresh(sensor_name);
+        P_watchdog::feedWatchdog(sensor_name);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         // TODO: process signature, version, revision and poll time
         PHWiNFO_SENSORS_READING_ELEMENT reading = (PHWiNFO_SENSORS_READING_ELEMENT) ((BYTE*)pHWiNFOMemory + 
@@ -122,7 +120,7 @@ void HWINFOdataFetcher::worker_thread()
             data_invalid_status = 2;
             continue;
         }
-
+        data_invalid_status = 0;
         sensor_data_buffer->write(pHWiNFOMemory->poll_time,reading->Value);
         sensor_value=reading->Value;
         sensor_time=pHWiNFOMemory->poll_time;

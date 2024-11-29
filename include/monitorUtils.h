@@ -3,6 +3,10 @@
 #include <vector>
 #include <mutex>
 #include <chrono>
+#include <thread>
+#include <iostream>
+
+static bool CircularBuffer_main_Terminate = false;
 
 template <typename T1,typename T2>
 class CircularBuffer
@@ -15,8 +19,7 @@ private:
     bool empty;
     std::mutex buffermutex;
 public:
-    bool main_Terminate;
-    CircularBuffer(size_t size): cbuffer(size),buffer_size(size),writeIndex(0),readIndex(0),empty(true),main_Terminate(false){}
+    CircularBuffer(size_t size): cbuffer(size),buffer_size(size),writeIndex(0),readIndex(0),empty(true){}
     int write(T1 wtime,T2 value)
     {
         buffermutex.lock();
@@ -46,7 +49,7 @@ tagread:
         {
             buffermutex.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if(main_Terminate)
+            if(CircularBuffer_main_Terminate)
                 return cbuffer[writeIndex].second;
             else
                 goto tagread;
@@ -56,8 +59,9 @@ tagread:
         {
             if(wtime==cbuffer[readIndex].first)
             {
+                T2 tmp = cbuffer[readIndex].second;
                 buffermutex.unlock();
-                return cbuffer[readIndex].second;
+                return tmp;
             }
             else
             {

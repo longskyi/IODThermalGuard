@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(piod VERSION 0.1)
+project(IODThermalGuard VERSION 0.1)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -13,14 +13,14 @@ endif()
 
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern/include)
 set(PROJECT_SOURCES
     src/main.cpp
     src/P_watchdog.cpp
     src/thermalControl.cpp
-    src/monitorUtils.cpp
     src/iodUtils.cpp
     src/gpuUtils.cpp
+    src/logUtils.cpp
 )
 
 set(SOURCES

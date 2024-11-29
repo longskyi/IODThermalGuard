@@ -5,11 +5,13 @@
 #include <string>
 #include <mutex>
 #include <iostream>
-
+#include <thread>
+#include <atomic>
 #define WATCHDOGTIMEOUT (10)
 
 namespace P_watchdog
 {
+    std::unordered_map <std::string,uint8_t> watchdog_flag;
     static std::unordered_map <std::string,uint8_t> watchdog_flag_map;
     static std::mutex watchdog_mutex;
     static std::atomic<bool> watchdog_run;
@@ -37,7 +39,7 @@ namespace P_watchdog
             return 1;   
 
     }
-    void refresh(std::string _watchdog_flag_name) // refresh watch dog flag
+    void feedWatchdog(std::string _watchdog_flag_name) // kick watch dog
     {
         std::unique_lock<std::mutex> lock(watchdog_mutex);
         if( watchdog_flag_map.find(_watchdog_flag_name) == watchdog_flag_map.end())

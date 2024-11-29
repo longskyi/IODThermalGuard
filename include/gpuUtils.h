@@ -2,7 +2,7 @@
 #define GPU_UTILS_HEADER
 #include <mutex>
 #include <iostream>
-#include <nvml.h>
+#include "nvml.h"
 #include <memory>
 #include "monitorUtils.h"
 #include "iodUtils.h"
@@ -16,7 +16,7 @@ struct GPU_performance_settings
     unsigned int GPU_minCLK;
     unsigned int GPU_maxCLK;
     unsigned int MAX_TGP_mw;
-    unsigned int MAX_Frequncy_Mhz;
+    unsigned int MAX_Frequency_Mhz;
 };
 
 

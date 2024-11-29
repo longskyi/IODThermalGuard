@@ -4,12 +4,12 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#include <thread>
 #include <Windows.h>
 #include <hwisenssm2.h>
 #include <iostream>
 #include <mutex>
 #include <atomic>
-#include "iodUtils.h"
 #include "monitorUtils.h"
 #include "logUtils.h"
 #include <format>
@@ -39,13 +39,14 @@ private:
     DWORD dwIODReading; //IOD 数据偏移量
     int data_invalid_status; // 0 for valid , 1 for DEAD , 2 for overtime
 public:
-    
+
     HWINFOdataFetcher(std::string _sensor_name);
     HWINFOdataFetcher(std::string _sensor_name , void (*_logger) (std::string logger_str,LogLevel level));
     HWINFOdataFetcher(const HWINFOdataFetcher & other) = delete;
     int init(); // 0 for success , 1 for failed
     void worker_thread();
     std::shared_ptr<CircularBuffer<long long,double>> get_buffer_ptr();
+    // 0 for valid , 1 for DEAD , 2 for overtime
     int get_data_invalid_status();
     void join();
 };
